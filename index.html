@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXORA AI | Home Tutor</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#081426;color:#eef5ff}
+header{padding:22px;background:#102440;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:23px;font-weight:bold;color:#55b7ff}
+.logo span{color:white}
+main{max-width:1000px;margin:auto;padding:22px}
+h1{font-size:32px}
+p{color:#b8c9df;line-height:1.6}
+.card{background:#122944;border:1px solid #244464;padding:20px;border-radius:16px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+button,select{padding:13px;border:0;border-radius:10px;background:#168cf0;color:white;font-size:15px;cursor:pointer}
+button:hover{background:#0872cf}
+.subject{background:#173655;text-align:left;min-height:100px}
+.subject strong{display:block;font-size:18px;margin-bottom:8px}
+input{padding:12px;border-radius:9px;border:1px solid #45617d;background:#0b1b30;color:white;width:100%;margin:8px 0}
+.option{display:block;width:100%;text-align:left;margin:9px 0;background:#244464}
+#content{margin-top:20px}
+.small{font-size:13px;color:#91a8c2}
+footer{text-align:center;padding:25px;color:#8299b5}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">NEXORA <span>AI</span></div>
+ <span>📚 HOME TUTOR</span>
+</header>
+<main>
+ <h1>Learn smarter. Score higher. 🚀</h1>
+ <p>Your personal study space for lessons, practice and revision.</p>
+
+ <div class="card">
+  <h2>Welcome, Student!</h2>
+  <p>Choose a subject and start learning today.</p>
+  <label for="student">Your name</label>
+  <input id="student" placeholder="Enter your name">
+  <button onclick="saveName()">Save name</button>
+  <p id="welcome"></p>
+ </div>
+
+ <div class="card">
+  <h2>📊 Your Learning Progress</h2>
+  <h1 id="score">0</h1>
+  <p>Quiz points earned on this device</p>
+ </div>
+
+ <h2>📖 Choose a Subject</h2>
+ <div class="grid" id="subjects"></div>
+ <div id="content"></div>
+</main>
+<footer>NEXORA AI Home Tutor · Learn something new every day.</footer>
+
+<script>
+const lessons = {
+ Maths:{
+  title:"Fractions",
+  note:"A fraction represents a part of a whole. It has a numerator (top number) and denominator (bottom number).",
+  example:"Example: 1/2 + 1/2 = 2/2 = 1.",
+  question:"What is 1/4 + 1/4?",
+  options:["1/2","1/4","1","2/4"],
+  answer:0,
+  explanation:"1/4 + 1/4 = 2/4, which simplifies to 1/2."
+ },
+ Science:{
+  title:"Photosynthesis",
+  note:"Photosynthesis is the process by which green plants use sunlight, water and carbon dioxide to make food.",
+  example:"Plants release oxygen during photosynthesis.",
+  question:"Which gas do plants absorb during photosynthesis?",
+  options:["Oxygen","Carbon dioxide","Nitrogen","Hydrogen"],
+  answer:1,
+  explanation:"Plants absorb carbon dioxide and use it to make food."
+ },
+ English:{
+  title:"Parts of Speech",
+  note:"Words are grouped into categories called parts of speech. Examples include nouns, verbs, adjectives and adverbs.",
+  example:"In 'The fast horse runs', horse is a noun and fast is an adjective.",
+  question:"Which word is a verb?",
+  options:["Beautiful","Quickly","Running","Blue"],
+  answer:2,
+  explanation:"Running is a verb because it describes an action."
+ },
+ "Social Studies":{
+  title:"Our Planet Earth",
+  note:"Earth is the third planet from the Sun. It has land, water and an atmosphere that supports life.",
+  example:"About 71% of Earth's surface is covered by water.",
+  question:"Which planet do we live on?",
+  options:["Mars","Earth","Venus","Jupiter"],
+  answer:1,
+  explanation:"We live on planet Earth."
+ }
+};
+
+let points=Number(localStorage.getItem("nexoraPoints")||0);
+let selected="";
+
+function updateScore(){
+ document.getElementById("score").textContent=points;
+}
+function saveName(){
+ const name=document.getElementById("student").value.trim();
+ if(!name)return;
+ localStorage.setItem("nexoraName",name);
+ document.getElementById("welcome").textContent="Welcome, "+name+"! Let's learn.";
+}
+const savedName=localStorage.getItem("nexoraName");
+if(savedName){
+ document.getElementById("student").value=savedName;
+ document.getElementById("welcome").textContent="Welcome back, "+savedName+"!";
+}
+updateScore();
+
+const subjects=document.getElementById("subjects");
+Object.keys(lessons).forEach(subject=>{
+ const btn=document.createElement("button");
+ btn.className="subject";
+ btn.innerHTML="<strong>"+subject+"</strong>Explore lesson →";
+ btn.onclick=()=>openLesson(subject);
+ subjects.appendChild(btn);
+});
+
+function openLesson(subject){
+ selected=subject;
+ const lesson=lessons[subject];
+ document.getElementById("content").innerHTML=`
+ <div class="card">
+  <p class="small">${subject.toUpperCase()} LESSON</p>
+  <h2>${lesson.title}</h2>
+  <p>${lesson.note}</p>
+  <h3>💡 Example</h3>
+  <p>${lesson.example}</p>
+  <button onclick="quiz()">Take Practice Quiz</button>
+  <button onclick="flashcard()">Revision Flashcard</button>
+ </div>`;
+}
+function quiz(){
+ const lesson=lessons[selected];
+ document.getElementById("content").innerHTML=`
+ <div class="card">
+  <h2>📝 Practice Quiz</h2>
+  <p>${lesson.question}</p>
+  <div id="answers"></div>
+  <p id="result"></p>
+ </div>`;
+ const answers=document.getElementById("answers");
+ lesson.options.forEach((option,index)=>{
+  const btn=document.createElement("button");
+  btn.className="option";
+  btn.textContent=option;
+  btn.onclick=()=>{
+   const result=document.getElementById("result");
+   if(index===lesson.answer){
+    points+=10;
+    localStorage.setItem("nexoraPoints",points);
+    updateScore();
+    result.textContent="🎉 Correct! +10 points. "+lesson.explanation;
+   }else{
+    result.textContent="Not quite! "+lesson.explanation;
+   }
+   answers.querySelectorAll("button").forEach(b=>b.disabled=true);
+  };
+  answers.appendChild(btn);
+ });
+}
+function flashcard(){
+ const lesson=lessons[selected];
+ document.getElementById("content").innerHTML=`
+ <div class="card">
+  <h2>🧠 Revision Card</h2>
+  <h3>${lesson.title}</h3>
+  <p>${lesson.note}</p>
+  <button onclick="openLesson(selected)">Back to Lesson</button>
+ </div>`;
+}
+</script>
+</body>
+</html>
